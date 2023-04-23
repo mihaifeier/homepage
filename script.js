@@ -84,7 +84,12 @@ const init = () => {
 }
 
 addItems = () => {
-    getItemsFromLocalStorage().reverse().forEach(item => {
+    const items = getItemsFromLocalStorage();
+    if (items === null) {
+        return;
+    }
+
+    items.reverse().forEach(item => {
         document.getElementsByClassName("list")[0].prepend(createItemHTML(item));
     });
 }
