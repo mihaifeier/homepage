@@ -1,4 +1,3 @@
-
 const createItemHTML = (item) => {
     const div = document.createElement("div");
     div.className = "item item-added";
@@ -13,7 +12,10 @@ const createItemHTML = (item) => {
 
     const faviconIMG = document.createElement("img");
     faviconIMG.className = "favicon";
-    if (item.url.endsWith("/")) {
+
+    if (item.customLogo !== "") {
+        faviconIMG.src = item.customLogo;
+    } else if (item.url.endsWith("/")) {
         faviconIMG.src = `${item.url}favicon.ico`; 
     } else {
         faviconIMG.src = `${item.url}/favicon.ico`;
@@ -25,12 +27,24 @@ const createItemHTML = (item) => {
     titleA.textContent = item.title;
     titleA.className = "title";
     titleA.href = item.url;
+    titleA.target = "_blank";
+    
     div.appendChild(titleA);
 
     return div;
 }
 
 const saveToLocalStorage = (item) => {
+    item.url = cleanURL(item.url);
+    item.customLogo = cleanURL(item.customLogo);
+
+    const exists = getItemsFromLocalStorage().some(tempItem => item.url === tempItem.url);
+
+    if (exists) {
+        alert("An entry with this URL exists already.");
+        return;
+    }
+
     let items = localStorage.getItem("items");
     
     if (items === null) {
@@ -38,15 +52,21 @@ const saveToLocalStorage = (item) => {
     } else { 
         items = JSON.parse(items)
     };
-    
-    if (!item.url.startsWith("https://") || !item.url.startsWith("http://")) {
-        item.url = `https://${item.url}`;
-    }
 
     items.push(item);
     localStorage.setItem("items", JSON.stringify(items));
 
     refreshPage();
+}
+
+const cleanURL = (url) => {
+    if (url === "") return "";
+
+    if (!url.startsWith("https://") || !url.startsWith("http://")) url = `https://${url}`;
+
+    if (!url.endsWith("/")) url = `${url}/`;
+
+    return url;
 }
 
 const refreshPage = () => {
@@ -74,7 +94,14 @@ const init = () => {
     document.getElementById("plus-sign").addEventListener("click", (event) => {
         const title = document.getElementById("title").value;
         const url = document.getElementById("url").value;
-        saveToLocalStorage({title, url});
+        const customLogo = document.getElementById("custom-logo").value;
+
+        if (title === "" || url === "") {
+            alert("Title and URL are required.");
+            return;
+        }
+
+        saveToLocalStorage({title, url, customLogo});
 
         document.getElementById("title").value = "";
         document.getElementById("url").value = "";
@@ -85,9 +112,7 @@ const init = () => {
 
 addItems = () => {
     const items = getItemsFromLocalStorage();
-    if (items === null) {
-        return;
-    }
+    if (items === null) return;
 
     items.reverse().forEach(item => {
         document.getElementsByClassName("list")[0].prepend(createItemHTML(item));
