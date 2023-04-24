@@ -61,9 +61,7 @@ const saveToLocalStorage = (item) => {
 
 const cleanURL = (url) => {
     if (url === "") return "";
-
     if (!url.startsWith("https://") || !url.startsWith("http://")) url = `https://${url}`;
-
     if (!url.endsWith("/")) url = `${url}/`;
 
     return url;
@@ -79,7 +77,7 @@ const refreshPage = () => {
 
 
 const getItemsFromLocalStorage = () => {
-    return JSON.parse(localStorage.getItem("items"));
+    return JSON.parse(localStorage.getItem("items")) ?? [];
 }
 
 const removeFromLocalStorage = (item) => {
@@ -112,7 +110,6 @@ const init = () => {
 
 addItems = () => {
     const items = getItemsFromLocalStorage();
-    if (items === null) return;
 
     items.reverse().forEach(item => {
         document.getElementsByClassName("list")[0].prepend(createItemHTML(item));
