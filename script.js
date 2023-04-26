@@ -27,7 +27,6 @@ const createItemHTML = (item) => {
     titleA.textContent = item.title;
     titleA.className = "title";
     titleA.href = item.url;
-    titleA.target = "_blank";
     
     div.appendChild(titleA);
 
